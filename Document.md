@@ -70,6 +70,10 @@
 
     对象存储：MinIO（自托管OSS，Docker部署）
 
+  - •
+
+    向量数据库：Qdrant（高性能向量搜索引擎）
+
     
 
 ------
@@ -150,7 +154,7 @@
 
   - •
 
-    用户输入问题 → 生成问题向量 → 计算与知识库内容的余弦相似度 → 返回最匹配的段落
+    用户输入问题 → 生成问题向量 → 在Qdrant中进行相似度搜索 → 返回最匹配的段落
 
 - •
 
@@ -215,7 +219,7 @@ app/
   **知识条目表**（`knowledge_items`）：
 
   ```
-  id (PK), user_id (FK), content_type (enum: "url"/"file"), source (URL或文件路径), cleaned_text, embedding_vector (pgvector扩展), created_at
+  id (PK), user_id (FK), content_type (enum: "url"/"file"), source (URL或文件路径), cleaned_text, created_at
   ```
 
 - •
@@ -234,7 +238,7 @@ app/
   id (PK), user_id (FK), session_id, question, answer, timestamp
   ```
 
-> **说明**：使用PostgreSQL的`pgvector`扩展存储嵌入向量，支持高效相似度查询。
+> **说明**：使用Qdrant向量数据库存储嵌入向量，支持高效相似度查询。
 
 ------
 
@@ -258,11 +262,11 @@ app/
 
 - •
 
-  `POST /knowledge/url`：提交URL → 返回存储的知识ID
+  `POST /knowledge/url`：提交URL → 提取文本并生成向量 → 存储到Qdrant → 返回存储的知识ID
 
 - •
 
-  `POST /knowledge/file`：上传文件 → 返回文件ID及关联知识ID
+  `POST /knowledge/file`：上传文件 → 提取文本并生成向量 → 存储到Qdrant → 返回文件ID及关联知识ID
 
   
 
@@ -300,7 +304,7 @@ app/
 
 - •
 
-  部署MinIO服务（Docker Compose）
+  部署MinIO和Qdrant服务（Docker Compose）
 
   
 
@@ -312,7 +316,7 @@ app/
 
 - •
 
-  集成SentenceTransformers生成文本向量
+  集成SentenceTransformers生成文本向量并存储到Qdrant
 
 - •
 
