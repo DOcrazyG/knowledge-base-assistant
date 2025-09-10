@@ -13,7 +13,7 @@ class File(Base):
     minio_path: Mapped[str] = mapped_column(String(500))
     filename: Mapped[str] = mapped_column(String(100))
     size: Mapped[int] = mapped_column(Integer)
-    uploaded_at: Mapped[datetime] = mapped_column(
+    uploaded_at: Mapped[datetime] =  mapped_column(
         DateTime,
-        default=lambda: datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).replace(tzinfo=None),
+        default=lambda: datetime.now(timezone(timedelta(hours=8))).replace(tzinfo=None),
     )

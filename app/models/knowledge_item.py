@@ -5,7 +5,6 @@ from datetime import datetime, timezone, timedelta
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, ForeignKey, Integer, DateTime, func
 from enum import Enum
-from pgvector.sqlalchemy import Vector
 from typing import List
 
 from ..core.database import Base
@@ -24,7 +23,7 @@ class KnowledgeItem(Base):
     content_type: Mapped[ContentType] = mapped_column(String(10))
     source: Mapped[str] = mapped_column(String(500))
     cleaned_text: Mapped[str] = mapped_column(String(500))
-    created_at: Mapped[datetime] = mapped_column(
+    created_at: Mapped[datetime] =  mapped_column(
         DateTime,
-        default=lambda: datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).replace(tzinfo=None),
+        default=lambda: datetime.now(timezone(timedelta(hours=8))).replace(tzinfo=None),
     )
