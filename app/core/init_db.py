@@ -1,30 +1,62 @@
-from .database import Base, engine
+from .database import Base, engine, SessionLocal
 from loguru import logger
 from sqlalchemy import text
 
-from ..models import User, KnowledgeItem, File, ChatHistory
+from ..models.user import User
+from ..models.role import Role
+from ..models.knowledge_item import KnowledgeItem
+from ..models.file import File
+from ..models.chat_history import ChatHistory
+
+from ..schemas.role import RoleCreate
+from ..schemas.user import UserCreate
+from ..services.crud.role import get_role_by_name, create_role
+from ..services.crud.user import get_user_by_username, get_user_by_email, create_user
 
 
-def init_database():
+def create_tables():
     # create all tables
-    try:
-        # Try to enable pgvector extension
-        with engine.connect() as conn:
-            conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
-            conn.commit()
-        logger.info("Vector extension enabled successfully")
-    except Exception as e:
-        logger.warning(f"Could not enable vector extension: {e}")
-        logger.warning("Please ensure pgvector extension is installed on your PostgreSQL server")
-        logger.warning("Refer to https://github.com/pgvector/pgvector for installation instructions")
-    
     try:
         Base.metadata.create_all(bind=engine)
         logger.success("Database tables created successfully")
     except Exception as e:
         logger.error(f"Error creating database tables: {e}")
-        logger.error("If you see a 'type \"vector\" does not exist' error, please install pgvector extension")
+
+
+def init_data():
+    db = SessionLocal()
+    # create role of user
+    user_role = get_role_by_name(db, "user")
+    if not user_role:
+        user_role = RoleCreate(name="user")
+        user_role = create_role(db, user_role)
+        logger.info(f"Role of user created: {user_role}")
+
+    # create role of admin
+    admin_role = get_role_by_name(db, "admin")
+    if not admin_role:
+        admin_role = RoleCreate(name="admin")
+        admin_role = create_role(db, admin_role)
+        logger.info(f"Role of admin created: {admin_role}")
+
+    # create user of admin
+    try:
+        if get_user_by_username(db, "admin") or get_user_by_email(db, "admin@example.com"):
+            logger.debug("Admin user already exists")
+        else:
+            admin_user = UserCreate(
+                username="admin",
+                email="admin@example.com",
+                password="123456",
+                role_id=admin_role.id,
+            )
+            admin_user = create_user(db, admin_user)
+            logger.info(f"Admin user created: {admin_user}")
+    except Exception as exc:
+        logger.error(f"Error inserting admin user: {exc}")
+        raise exc
 
 
 if __name__ == "__main__":
-    init_database()
+    create_tables()
+    init_data()
