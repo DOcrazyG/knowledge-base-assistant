@@ -5,11 +5,12 @@ from loguru import logger
 
 from ...schemas import user as user_schemas
 from ...models import user as user_models
+from ...dependencies.security import get_password_hash
 
 
 def create_user(db: Session, user: user_schemas.UserCreate):
     db_user = user_models.User(
-        username=user.username, email=user.email, hashed_password=user.password, role_id=user.role_id
+        username=user.username, email=user.email, hashed_password=get_password_hash(user.password), role_id=user.role_id
     )
     try:
         db.add(db_user)

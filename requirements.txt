@@ -4,3 +4,6 @@ loguru
 pydantic
 fastapi
 uvicorn
+passlib
+pyjwt
+python-multipart

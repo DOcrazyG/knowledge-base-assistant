@@ -1,10 +1,13 @@
 from fastapi import FastAPI
 from .user import router as user_router
 from .role import router as role_router
+from .login import router as login_router
 
 app = FastAPI(title="Knowledge-Base-Assistant-API", description="API for Knowledge Base Assistant", version="0.1.0")
+
 app.include_router(user_router)
 app.include_router(role_router)
+app.include_router(login_router)
 
 
 @app.get("/")
