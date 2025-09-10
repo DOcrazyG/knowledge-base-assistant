@@ -1,7 +1,9 @@
-import sys
+import uvicorn
+from app.core.init_db import create_tables, init_data
+from app.api.api import app
 
-sys.path.append("/home/lyuuhao/code/knowledge-base-assistant/")
+create_tables()
+init_data()
 
-from app.core.init_db import init_database
-
-init_database()
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
