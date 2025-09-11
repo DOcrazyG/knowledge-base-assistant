@@ -36,3 +36,13 @@ def get_role_by_name(db: Session, role_name: str):
     except Exception:
         return None
 
+def delete_role(db: Session, role_id: int):
+    db_role = get_role(db, role_id)
+    if not db_role:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Role not found")
+    try:
+        db.delete(db_role)
+        db.commit()
+        return db_role
+    except Exception as exc:
+        logger.error(f"Error deleting role: {exc}")

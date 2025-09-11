@@ -23,7 +23,10 @@ def create_user(db: Session, user: user_schemas.UserCreate):
 
 
 def get_user(db: Session, user_id: int):
-    return db.get(user_id)
+    try:
+        return db.execute(select(user_models.User).filter_by(id=user_id)).scalar_one()
+    except Exception:
+        return None
 
 
 def get_users(db: Session):
@@ -44,7 +47,7 @@ def get_user_by_email(db: Session, email: str):
         return None
 
 
-def update_user(db: Session, user_id: int, user_update: user_schemas.UserBase):
+def update_user(db: Session, user_id: int, user_update: user_schemas.UserUpdate):
     db_user = get_user(db, user_id)
     if not db_user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")

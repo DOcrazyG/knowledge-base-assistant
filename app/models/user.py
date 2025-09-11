@@ -12,8 +12,8 @@ class User(Base):
     username: Mapped[str] = mapped_column(String(50), unique=True)
     email: Mapped[str] = mapped_column(String(50), unique=True)
     hashed_password: Mapped[str] = mapped_column(String(100))
-    is_active: Mapped[bool] = mapped_column(Boolean, default=False)
-    role_id: Mapped[int] = mapped_column(Integer, ForeignKey("roles.id"))
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    role_id: Mapped[int] = mapped_column(Integer, ForeignKey("roles.id"), default=1)
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=lambda: datetime.now(timezone(timedelta(hours=8))).replace(tzinfo=None),

@@ -6,26 +6,11 @@ from datetime import timedelta
 from sqlalchemy.orm import Session
 
 from ..core.database import SessionLocal
-from ..dependencies.security import authenticate_user, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
+from ..dependencies.security import authenticate_user, create_access_token
+from ..dependencies.security import Token, ACCESS_TOKEN_EXPIRE_MINUTES
+from ..dependencies.depends import get_db
 
 router = APIRouter(prefix="/login", tags=["login"])
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    username: str | None = None
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.post("/token")
