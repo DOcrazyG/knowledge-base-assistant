@@ -1,13 +1,31 @@
 from fastapi import FastAPI
+from fastapi import APIRouter
+from contextlib import asynccontextmanager
+
+from .login import router as login_router
 from .user import router as user_router
 from .role import router as role_router
-from .login import router as login_router
+from .permission import router as permission_router
+from ..core.init_db import init_all as init_db_main
 
-app = FastAPI(title="Knowledge-Base-Assistant-API", description="API for Knowledge Base Assistant", version="0.1.0")
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db_main()
+    yield
+
+
+app = FastAPI(
+    title="Knowledge-Base-Assistant-API",
+    description="API for Knowledge Base Assistant",
+    version="0.1.0",
+    lifespan=lifespan,
+)
+
+app.include_router(login_router)
 app.include_router(user_router)
 app.include_router(role_router)
-app.include_router(login_router)
+app.include_router(permission_router)
 
 
 @app.get("/")

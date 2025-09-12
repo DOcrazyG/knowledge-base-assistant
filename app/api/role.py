@@ -1,40 +1,62 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from fastapi import HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List
 
-from ..core.database import SessionLocal
-from ..schemas.role import RoleCreate, Role, RoleUpdate
-from ..services.crud import role as role_crud
 from ..dependencies.depends import get_db
-from ..dependencies.security import get_current_active_user
+from ..dependencies.security import get_current_active_user, require_permission
+from ..services.crud import role as role_crud
+from ..schemas.role import Role, RoleCreate, RoleUpdate
+from ..schemas.user import User
 
-router = APIRouter(prefix="/role", tags=["role"])
+router = APIRouter(prefix="/roles", tags=["roles"])
 
 
-@router.get("/", response_model=list[Role])
-async def get_roles(db: Session = Depends(get_db), current_user=Depends(get_current_active_user)):
-    return role_crud.get_roles(db)
+@router.post("/", response_model=Role)
+@require_permission("role:manage")
+async def create_role(
+    role: RoleCreate, 
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    return await role_crud.create_role(db=db, role=role)
+
+
+@router.get("/", response_model=List[Role])
+async def read_roles(db: AsyncSession = Depends(get_db)):
+    roles = await role_crud.get_roles(db)
+    return roles
 
 
 @router.get("/{role_id}", response_model=Role)
-async def get_role(role_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_active_user)):
-    db_role = role_crud.get_role(db, role_id)
+async def read_role(role_id: int, db: AsyncSession = Depends(get_db)):
+    db_role = await role_crud.get_role(db, role_id=role_id)
     if db_role is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Role not found")
+        raise HTTPException(status_code=404, detail="Role not found")
     return db_role
 
 
-@router.post("/create", response_model=Role)
-async def create_role(role: RoleCreate, db: Session = Depends(get_db), current_user=Depends(get_current_active_user)):
-    if role_crud.get_role_by_name(db, role.name):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Rolename already exists")
-
-    return role_crud.create_role(db, role)
-
-
-@router.delete("/delete/{role_id}", response_model=Role)
-async def delete_role(role_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_active_user)):
-    db_role = role_crud.get_role(db, role_id)
+@router.put("/{role_id}", response_model=Role)
+@require_permission("role:manage")
+async def update_role(
+    role_id: int, 
+    role: RoleUpdate, 
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    db_role = await role_crud.get_role(db, role_id=role_id)
     if db_role is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Role not found")
-    return role_crud.delete_role(db, role_id)
+        raise HTTPException(status_code=404, detail="Role not found")
+    return await role_crud.update_role(db=db, role_id=role_id, role_update=role)
+
+
+@router.delete("/{role_id}")
+@require_permission("role:manage")
+async def delete_role(
+    role_id: int, 
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    db_role = await role_crud.get_role(db, role_id=role_id)
+    if db_role is None:
+        raise HTTPException(status_code=404, detail="Role not found")
+    return await role_crud.delete_role(db=db, role_id=role_id)
