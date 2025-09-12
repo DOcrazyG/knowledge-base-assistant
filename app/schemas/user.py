@@ -21,7 +21,7 @@ class User(UserBase):
     # create_at: datetime
     # update_at: datetime
 
-    class config:
+    class Config:
         orm_mode = True
 
 
