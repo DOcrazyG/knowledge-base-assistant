@@ -17,7 +17,7 @@ class Permission(Base):
     )
 
     roles = relationship(
-        "Role", secondary="role_permission", back_populates="permissions"
+        "Role", secondary="role_permission", back_populates="permissions", lazy="selectin"
     )
 
 

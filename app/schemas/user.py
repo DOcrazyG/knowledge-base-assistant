@@ -10,23 +10,23 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
-    # is_active: Optional[bool] = True
+    is_active: Optional[bool] = False
     role_id: Optional[int] = 1
 
 
 class User(UserBase):
     id: int
-    # is_active: bool
-    # role_id: int
-    # create_at: datetime
-    # update_at: datetime
+    is_active: bool
+    role_id: int
+    create_at: datetime
+    update_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class UserUpdate(UserBase):
-    is_active: Optional[bool] = True
+    is_active: Optional[bool] = False
     role_id: Optional[int] = 1
 
 

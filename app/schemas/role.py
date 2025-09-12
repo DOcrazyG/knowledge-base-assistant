@@ -27,4 +27,4 @@ class Role(RoleBase):
     permissions: Optional[List[Permission]] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True

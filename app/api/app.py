@@ -6,13 +6,15 @@ from .login import router as login_router
 from .user import router as user_router
 from .role import router as role_router
 from .permission import router as permission_router
-from ..core.init_db import init_all as init_db_main
+from ..core.init_db import init_all
+from ..core.database import engine
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await init_db_main()
+    await init_all()
     yield
+    await engine.dispose()
 
 
 app = FastAPI(

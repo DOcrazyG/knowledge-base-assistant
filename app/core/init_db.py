@@ -35,82 +35,92 @@ async def create_tables():
 
 
 async def init_data():
-    # Create a new async session
-    async_session = AsyncSession(engine)
+    # Create a new async session using SessionLocal
+    async_session = SessionLocal()
+    
+    try:
+        # Create default permissions
+        permissions = [
+            {"name": "role:manage", "description": "Manage roles"},
+            {"name": "user:manage", "description": "Manage users"},
+            {"name": "permission:manage", "description": "Manage permissions"},
+            {"name": "role:view", "description": "View roles"},
+            {"name": "user:view", "description": "View users"},
+        ]
 
-    # Create default permissions
-    permissions = [
-        {"name": "role:manage", "description": "Manage roles"},
-        {"name": "user:manage", "description": "Manage users"},
-        {"name": "permission:manage", "description": "Manage permissions"},
-        {"name": "role:view", "description": "View roles"},
-        {"name": "user:view", "description": "View users"},
-    ]
+        for perm_data in permissions:
+            perm = await get_permission_by_name(async_session, perm_data["name"])
+            if not perm:
+                perm_create = PermissionCreate(
+                    name=perm_data["name"], description=perm_data["description"]
+                )
+                perm = await create_permission(async_session, perm_create)
+                logger.info(f"Permission created: {perm.name}")
 
-    for perm_data in permissions:
-        perm = await get_permission_by_name(async_session, perm_data["name"])
-        if not perm:
-            perm_create = PermissionCreate(
-                name=perm_data["name"], description=perm_data["description"]
-            )
-            perm = await create_permission(async_session, perm_create)
-            logger.info(f"Permission created: {perm.name}")
-
-    # create role of user
-    user_role = await get_role_by_name(async_session, "user")
-    if not user_role:
-        user_role = RoleCreate(name="user")
-        user_role = await create_role(async_session, user_role)
-        logger.info(f"Role of user created: {user_role}")
+        # Create user role
+        user_role = await get_role_by_name(async_session, "user")
+        if not user_role:
+            user_role = RoleCreate(name="user")
+            user_role = await create_role(async_session, user_role)
+            logger.info(f"Role 'user' created: {user_role}")
+        
         # Assign permissions to user role
-        user_permission = permissions[3:]
+        user_permission = permissions[3:]  # role:view and user:view
         for perm in user_permission:
             perm = await get_permission_by_name(async_session, perm["name"])
             if perm:
                 await assign_permission_to_role(async_session, user_role.id, perm.id)
-                # 确保在访问perm.name之前对象已经完全加载
-                await async_session.refresh(perm)
                 logger.info(f"Assigned permission {perm.name} to user role")
-    # create role of admin
-    admin_role = await get_role_by_name(async_session, "admin")
-    if not admin_role:
-        admin_role = RoleCreate(name="admin")
-        admin_role = await create_role(async_session, admin_role)
-        logger.info(f"Role of admin created: {admin_role}")
+
+        # Create admin role
+        admin_role = await get_role_by_name(async_session, "admin")
+        if not admin_role:
+            admin_role = RoleCreate(name="admin")
+            admin_role = await create_role(async_session, admin_role)
+            logger.info(f"Role 'admin' created: {admin_role}")
 
         # Assign all permissions to admin role
         result = await async_session.execute(select(Permission))
         all_permissions = result.scalars().all()
+        logger.info(f"Found {len(all_permissions)} permissions to assign to admin role")
+        
         for perm in all_permissions:
             try:
                 await assign_permission_to_role(async_session, admin_role.id, perm.id)
-                # 确保在访问perm.name之前对象已经完全加载
-                await async_session.refresh(perm)
                 logger.info(f"Assigned permission {perm.name} to admin role")
             except Exception as e:
-                logger.warning(
-                    f"Could not assign permission {perm.name} to admin role: {e}"
+                logger.error(
+                    f"Could not assign permission {perm.name} (ID: {perm.id}) to admin role (ID: {admin_role.id}): {e}"
                 )
 
-    # create user of admin
-    try:
-        if await get_user_by_username(
-            async_session, "admin"
-        ) or await get_user_by_email(async_session, "admin@example.com"):
-            logger.debug("Admin user already exists")
-        else:
-            admin_user = UserCreate(
-                username="admin",
-                email="admin@example.com",
-                password="123456",
-                role_id=admin_role.id,
-            )
-            admin_user = await create_user(async_session, admin_user)
-            logger.info(f"Admin user created: {admin_user}")
-    except Exception as exc:
-        logger.error(f"Error inserting admin user: {exc}")
-        raise exc
+        # Create admin user if it doesn't exist
+        try:
+            admin_exists = await get_user_by_username(async_session, "admin") or \
+                          await get_user_by_email(async_session, "admin@example.com")
+            
+            if admin_exists:
+                logger.debug("Admin user already exists")
+            else:
+                admin_user = UserCreate(
+                    username="admin",
+                    email="admin@example.com",
+                    password="123456",
+                    role_id=admin_role.id,
+                )
+                admin_user = await create_user(async_session, admin_user)
+                logger.info(f"Admin user created: {admin_user}")
+        except Exception as exc:
+            logger.error(f"Error inserting admin user: {exc}")
+            raise exc
+            
+        # Commit the transaction
+        await async_session.commit()
+    except Exception as e:
+        await async_session.rollback()
+        logger.error(f"Error during data initialization: {e}")
+        raise e
     finally:
+        # Ensure the session is properly closed
         await async_session.close()
 
 

@@ -2,7 +2,7 @@ from datetime import datetime, timezone, timedelta
 
 from ..core.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, DateTime
+from sqlalchemy import String, DateTime, Table, ForeignKey, Integer, Column
 
 
 class Role(Base):
@@ -15,7 +15,10 @@ class Role(Base):
         default=lambda: datetime.now(timezone(timedelta(hours=8))).replace(tzinfo=None),
     )
 
-    # Relationship with permissions
+    # Relationship with permissions through the association table
     permissions = relationship(
-        "Permission", secondary="role_permission", back_populates="roles"
+        "Permission", 
+        secondary="role_permission", 
+        back_populates="roles",
+        lazy="selectin"  # 使用selectin加载权限，提高查询效率
     )
