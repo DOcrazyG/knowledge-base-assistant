@@ -7,3 +7,4 @@ uvicorn
 passlib
 pyjwt
 python-multipart
+asyncpg
