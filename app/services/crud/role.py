@@ -1,4 +1,5 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 from sqlalchemy import select, update
 from fastapi import HTTPException, status
 from loguru import logger
@@ -7,42 +8,78 @@ from ...schemas import role as role_schemas
 from ...models import role as role_models
 
 
-def create_role(db: Session, role: role_schemas.RoleCreate):
+async def create_role(db: AsyncSession, role: role_schemas.RoleCreate):
     db_role = role_models.Role(name=role.name)
     try:
         db.add(db_role)
-        db.commit()
-        db.refresh(db_role)
+        await db.commit()
+        await db.refresh(db_role)
         return db_role
     except Exception as exc:
+        await db.rollback()
         logger.error(f"Error creating user: {exc}")
         raise exc
 
 
-def get_role(db: Session, role_id: int):
+async def get_role(db: AsyncSession, role_id: int):
     try:
-        return db.execute(select(role_models.Role).filter_by(id=role_id)).scalar_one()
-    except Exception:
-        return None
+        result = await db.execute(
+            select(role_models.Role)
+            .options(selectinload(role_models.Role.permissions))
+            .filter_by(id=role_id)
+        )
+        return result.scalar_one_or_none()
+    except Exception as exc:
+        raise exc
 
 
-def get_roles(db: Session):
-    return db.execute(select(role_models.Role)).scalars().all()
-
-
-def get_role_by_name(db: Session, role_name: str):
+async def get_role_by_name(db: AsyncSession, name: str):
     try:
-        return db.execute(select(role_models.Role).filter_by(name=role_name)).scalar_one()
-    except Exception:
-        return None
+        result = await db.execute(
+            select(role_models.Role)
+            .options(selectinload(role_models.Role.permissions))
+            .filter_by(name=name)
+        )
+        return result.scalar_one_or_none()
+    except Exception as exc:
+        raise exc
 
-def delete_role(db: Session, role_id: int):
-    db_role = get_role(db, role_id)
+
+async def get_roles(db: AsyncSession):
+    result = await db.execute(
+        select(role_models.Role).options(selectinload(role_models.Role.permissions))
+    )
+    return result.scalars().all()
+
+
+async def update_role(
+    db: AsyncSession, role_id: int, role_update: role_schemas.RoleUpdate
+):
+    db_role = await get_role(db, role_id)
     if not db_role:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Role not found")
+        raise HTTPException(status_code=404, detail="Role not found")
+
     try:
-        db.delete(db_role)
-        db.commit()
+        db_role.name = role_update.name
+        await db.commit()
+        await db.refresh(db_role)
         return db_role
     except Exception as exc:
+        await db.rollback()
+        logger.error(f"Error updating role: {exc}")
+        raise HTTPException(status_code=400, detail="Error updating role") from exc
+
+
+async def delete_role(db: AsyncSession, role_id: int):
+    db_role = await get_role(db, role_id)
+    if not db_role:
+        raise HTTPException(status_code=404, detail="Role not found")
+
+    try:
+        await db.delete(db_role)
+        await db.commit()
+        return {"message": "Role deleted successfully"}
+    except Exception as exc:
+        await db.rollback()
         logger.error(f"Error deleting role: {exc}")
+        raise HTTPException(status_code=400, detail="Error deleting role") from exc
