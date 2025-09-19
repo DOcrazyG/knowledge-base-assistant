@@ -6,6 +6,7 @@ from .login import router as login_router
 from .user import router as user_router
 from .role import router as role_router
 from .permission import router as permission_router
+from .file import router as file_router
 from ..core.init_db import init_all
 from ..core.database import engine
 
@@ -28,6 +29,7 @@ app.include_router(login_router)
 app.include_router(user_router)
 app.include_router(role_router)
 app.include_router(permission_router)
+app.include_router(file_router)
 
 
 @app.get("/")
