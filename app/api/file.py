@@ -1,5 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from loguru import logger
 import os
 import uuid
 
@@ -23,6 +24,7 @@ async def upload_file_to_minio(
 ):
     """
     上传文件到MinIO并保存元数据到数据库
+    同时处理支持的文档格式，提取文本内容并存储到知识库
     """
     # 生成唯一文件名
     file_extension = os.path.splitext(file.filename)[1] if file.filename else ""
@@ -50,7 +52,54 @@ async def upload_file_to_minio(
         ),
     )
 
+    # 简化文档处理逻辑
+    await _process_document_if_supported(file, file_url, current_user, db)
+
     return file_record
+
+
+async def _process_document_if_supported(
+    file: UploadFile, file_url: str, current_user: User, db: AsyncSession
+):
+    """内部函数：处理支持的文档格式"""
+    file_ext = os.path.splitext(file.filename)[1].lower() if file.filename else ""
+
+    if file_ext == ".docx":
+        from ..core.processor import WordProcessor
+
+        word_processor = WordProcessor()
+
+        file.file.seek(0)
+        processed_text = await word_processor.process_document(
+            file_data=file.file, filename=file.filename
+        )
+        logger.debug(f"Processing file's content: {processed_text}")
+        return processed_text
+    else:
+        return None
+
+    # if file_ext in SUPPORTED_EXTENSIONS:
+    #     try:
+    #         # 重置文件指针并处理文档
+    #         file.file.seek(0)
+    #         processed_text = await document_processor.process_document(
+    #             file.file, file.filename, current_user.id
+    #         )
+
+    #         # 保存到知识库
+    #         await knowledge_item_crud.create_knowledge_item(
+    #             db,
+    #             itemCreate(
+    #                 user_id=current_user.id,
+    #                 content_type=ContentType.file,
+    #                 source=file_url,
+    #                 cleaned_text=processed_text[:500]
+    #             )
+    #         )
+
+    #     except Exception as e:
+    #         from loguru import logger
+    #         logger.error(f"处理文档文件时出错: {str(e)}")
 
 
 @router.get("/{file_id}", response_model=FileInfo)

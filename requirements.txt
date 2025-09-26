@@ -9,3 +9,5 @@ pyjwt
 python-multipart
 asyncpg
 openai
+mammoth
+markdownify
