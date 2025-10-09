@@ -73,7 +73,18 @@ async def _process_document_if_supported(
         processed_text = await word_processor.process_document(
             file_data=file.file, filename=file.filename
         )
-        logger.debug(f"Processing file's content: {processed_text}")
+        logger.debug(f"Word content: {processed_text}")
+        return processed_text
+    elif file_ext in [".xlsx", ".xls"]:
+        from ..core.processor import ExcelProcessor
+
+        excel_processor = ExcelProcessor()
+
+        file.file.seek(0)
+        processed_text = await excel_processor.process_document(
+            file_data=file.file, filename=file.filename
+        )
+        logger.debug(f"Excel content: {processed_text}")
         return processed_text
     else:
         return None

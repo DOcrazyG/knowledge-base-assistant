@@ -11,3 +11,4 @@ asyncpg
 openai
 mammoth
 markdownify
+tabulate
