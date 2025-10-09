@@ -11,6 +11,7 @@ from ..models.user import User
 from ..schemas.chat_history import ChatHistoryCreate
 from ..core.database import SessionLocal
 from ..services.crud import chat_history as chat_history_crud
+from ..services.crud.knowledge_item import get_knowledge_items_by_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import insert
@@ -56,12 +57,24 @@ async def chat_completion(
             or f"session_{current_user.id}_{hash(request.message) % 10000}"
         )
 
+        # 获取用户的知识项作为上下文
+        knowledge_items = await get_knowledge_items_by_user(db, current_user.id)
+        context = "\n".join([item.cleaned_text for item in knowledge_items])
+
+        # 构建包含上下文的消息
+        messages = [
+            {"role": "system", "content": "You are a helpful assistant."}
+        ]
+        
+        # 如果有上下文，则添加上下文信息
+        if context:
+            messages.append({"role": "system", "content": f"Here is some context information: {context}"})
+            
+        messages.append({"role": "user", "content": request.message})
+
         response = client.chat.completions.create(
             model=OPENAI_MODEL,
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": request.message},
-            ],
+            messages=messages,
             max_tokens=500,
             temperature=0.7,
         )

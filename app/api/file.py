@@ -11,12 +11,14 @@ from ..utils.save2minio import upload_file
 from ..schemas.user import User
 from ..models.file import File
 from ..services.crud.file import create_file, get_file
-
+from ..models.knowledge_item import KnowledgeItem
+from ..schemas.knowledge_item import ItemCreate
+from ..services.crud.knowledge_item import create_knowledge_item
 
 router = APIRouter(prefix="/files", tags=["files"])
 
 
-@router.post("/upload", response_model=FileInfo)
+@router.post("/upload")
 async def upload_file_to_minio(
     file: UploadFile,
     db: AsyncSession = Depends(get_db),
@@ -53,9 +55,9 @@ async def upload_file_to_minio(
     )
 
     # 简化文档处理逻辑
-    await _process_document_if_supported(file, file_url, current_user, db)
+    file_content = await _process_document_if_supported(file, file_url, current_user, db)
 
-    return file_record
+    return file_content
 
 
 async def _process_document_if_supported(
@@ -73,6 +75,16 @@ async def _process_document_if_supported(
         processed_text = await word_processor.process_document(
             file_data=file.file, filename=file.filename
         )
+        
+        # 将处理后的内容存储到知识库
+        knowledge_item = ItemCreate(
+            user_id=current_user.id,
+            content_type="file",
+            source=file_url,
+            cleaned_text=processed_text[:500]  # 限制长度以适应数据库字段
+        )
+        await create_knowledge_item(db, knowledge_item)
+        
         logger.debug(f"Word content: {processed_text}")
         return processed_text
     elif file_ext in [".xlsx", ".xls"]:
@@ -84,33 +96,20 @@ async def _process_document_if_supported(
         processed_text = await excel_processor.process_document(
             file_data=file.file, filename=file.filename
         )
+        
+        # 将处理后的内容存储到知识库
+        knowledge_item = ItemCreate(
+            user_id=current_user.id,
+            content_type="file",
+            source=file_url,
+            cleaned_text=processed_text[:500]  # 限制长度以适应数据库字段
+        )
+        await create_knowledge_item(db, knowledge_item)
+        
         logger.debug(f"Excel content: {processed_text}")
         return processed_text
     else:
         return None
-
-    # if file_ext in SUPPORTED_EXTENSIONS:
-    #     try:
-    #         # 重置文件指针并处理文档
-    #         file.file.seek(0)
-    #         processed_text = await document_processor.process_document(
-    #             file.file, file.filename, current_user.id
-    #         )
-
-    #         # 保存到知识库
-    #         await knowledge_item_crud.create_knowledge_item(
-    #             db,
-    #             itemCreate(
-    #                 user_id=current_user.id,
-    #                 content_type=ContentType.file,
-    #                 source=file_url,
-    #                 cleaned_text=processed_text[:500]
-    #             )
-    #         )
-
-    #     except Exception as e:
-    #         from loguru import logger
-    #         logger.error(f"处理文档文件时出错: {str(e)}")
 
 
 @router.get("/{file_id}", response_model=FileInfo)

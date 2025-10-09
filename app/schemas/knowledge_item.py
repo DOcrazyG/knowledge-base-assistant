@@ -9,24 +9,24 @@ class ContentType(str, Enum):
     url = "url"
 
 
-class itemBase(BaseModel):
+class ItemBase(BaseModel):
     user_id: int
     content_type: ContentType
     source: str
     cleaned_text: str
 
 
-class itemCreate(itemBase):
+class ItemCreate(ItemBase):
     pass
 
 
-class itemUpdate(itemBase):
+class ItemUpdate(ItemBase):
     pass
 
 
-class itemDelete(BaseModel):
+class ItemDelete(BaseModel):
     id: int
 
 
-class KnowledgeItem(itemBase):
+class KnowledgeItem(ItemBase):
     id: int
