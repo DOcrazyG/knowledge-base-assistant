@@ -12,3 +12,6 @@ openai
 mammoth
 markdownify
 tabulate
+qdrant-client
+chonkie
+chonkie[hub]

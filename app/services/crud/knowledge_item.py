@@ -10,7 +10,7 @@ async def create_knowledge_item(db: AsyncSession, knowledge_item: ItemCreate):
     """
     创建知识项
     """
-    db_knowledge_item = KnowledgeItem(**knowledge_item.dict())
+    db_knowledge_item = KnowledgeItem(**knowledge_item.model_dump())
     db.add(db_knowledge_item)
     await db.commit()
     await db.refresh(db_knowledge_item)
