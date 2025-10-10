@@ -14,9 +14,9 @@ from ..services.crud.file import create_file, get_file
 from ..models.knowledge_item import KnowledgeItem
 from ..schemas.knowledge_item import ItemCreate
 from ..services.crud.knowledge_item import create_knowledge_item
-from ..core.qdrant_db import qdrant_client, QDRANT_COLLECTION_NAME
-from ..core.embedding import EmbeddingModel
-from ..core.chunking import DocumentChunker
+from ..core.rag.qdrant_db import qdrant_client, QDRANT_COLLECTION_NAME
+from ..core.rag.embedding import EmbeddingModel
+from ..core.rag.chunking import DocumentChunker
 
 router = APIRouter(prefix="/files", tags=["files"])
 

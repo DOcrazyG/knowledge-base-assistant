@@ -12,8 +12,8 @@ from ..schemas.chat_history import ChatHistoryCreate
 from ..core.database import SessionLocal
 from ..services.crud import chat_history as chat_history_crud
 from ..services.crud.knowledge_item import get_knowledge_items_by_user
-from ..core.embedding import EmbeddingModel
-from ..core.qdrant_db import qdrant_client, QDRANT_COLLECTION_NAME
+from ..core.rag.embedding import EmbeddingModel
+from ..core.rag.qdrant_db import qdrant_client, QDRANT_COLLECTION_NAME
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import insert
