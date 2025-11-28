@@ -113,13 +113,14 @@ async def _retrieve_context_from_qdrant(
     query_vector = embedding_model.embed_sigle(query)
 
     # 在Qdrant中搜索相似内容（仅搜索当前用户的内容）
-    search_result = qdrant_client.search(
+    search_result = qdrant_client.query_points(
         collection_name=QDRANT_COLLECTION_NAME,
-        query_vector=query_vector,
+        query=query_vector,
         limit=limit,
         query_filter={"must": [{"key": "user_id", "match": {"value": user_id}}]},
     )
 
     # 提取相关内容
-    contexts = [result.payload.get("content", "") for result in search_result]
-    return "\n".join(contexts)
+    contexts = [point.payload.get("content", "") for point in search_result.points]
+
+    return "\n\n".join(contexts)
