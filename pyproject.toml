@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "asyncpg>=0.31.0",
-    "bcrypt>=5.0.0",
+    "bcrypt==4.0.1",
     "chonkie[hub]>=1.4.2",
     "fastapi>=0.122.0",
     "loguru>=0.7.3",
