@@ -21,6 +21,7 @@ dependencies = [
     "python-multipart>=0.0.20",
     "qdrant-client>=1.16.1",
     "requests>=2.32.5",
+    "ruff>=0.14.6",
     "sqlalchemy>=2.0.44",
     "tabulate>=0.9.0",
     "uvicorn>=0.38.0",
