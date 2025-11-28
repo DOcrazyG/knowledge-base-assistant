@@ -110,9 +110,10 @@ An intelligent knowledge management system with document processing, semantic se
 
 4. Set up environment variables (see [Configuration](#configuration))
 
-5. Initialize the database:
-   ```bash
-   python -c "from app.core.init_db import init_db; init_db()"
+5. Create the database:
+   ```sql
+   CREATE USER your_username WITH PASSWORD 'your_password';
+   CREATE DATABASE your_db_name OWNER your_username;
    ```
 
 6. Start the backend server:
@@ -123,7 +124,7 @@ An intelligent knowledge management system with document processing, semantic se
    
    Or directly:
    ```bash
-   uvicorn app.main:app --host 0.0.0.0 --port 8010 --reload
+   uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
    ```
 
 ### Frontend Setup
@@ -155,7 +156,7 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
-DB_DATABASE=knowledge_base
+DB_DATABASE=your_db_name
 
 # MinIO Configuration
 MINIO_ENDPOINT=localhost:9000
@@ -193,8 +194,8 @@ VECTOR_SIZE=1536
 ## API Documentation
 
 Once the backend is running, visit:
-- Swagger UI: http://localhost:8010/docs
-- ReDoc: http://localhost:8010/redoc
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
 
 Key API endpoints:
 - `POST /register` - User registration
