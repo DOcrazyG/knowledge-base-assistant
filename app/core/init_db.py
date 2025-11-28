@@ -1,27 +1,20 @@
 import asyncio
-from .database import Base, engine
+
 from loguru import logger
-from sqlalchemy import text, select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
-from .database import SessionLocal
-from ..models.user import User
-from ..models.role import Role
-from ..models.knowledge_item import KnowledgeItem
-from ..models.file import File
-from ..models.chat_history import ChatHistory
-from ..models.permission import Permission, RolePermission
-
+from ..models.permission import Permission
+from ..schemas.permission import PermissionCreate
 from ..schemas.role import RoleCreate
 from ..schemas.user import UserCreate
-from ..schemas.permission import PermissionCreate
-from ..services.crud.role import get_role_by_name, create_role
-from ..services.crud.user import get_user_by_username, get_user_by_email, create_user
 from ..services.crud.permission import (
-    get_permission_by_name,
-    create_permission,
     assign_permission_to_role,
+    create_permission,
+    get_permission_by_name,
 )
+from ..services.crud.role import create_role, get_role_by_name
+from ..services.crud.user import create_user, get_user_by_email, get_user_by_username
+from .database import Base, SessionLocal, engine
 
 
 async def create_tables():
@@ -37,7 +30,7 @@ async def create_tables():
 async def init_data():
     # Create a new async session using SessionLocal
     async_session = SessionLocal()
-    
+
     try:
         # Create default permissions
         permissions = [
@@ -63,7 +56,7 @@ async def init_data():
             user_role = RoleCreate(name="user")
             user_role = await create_role(async_session, user_role)
             logger.info(f"Role 'user' created: {user_role}")
-        
+
         # Assign permissions to user role
         user_permission = permissions[3:]  # role:view and user:view
         for perm in user_permission:
@@ -83,7 +76,7 @@ async def init_data():
         result = await async_session.execute(select(Permission))
         all_permissions = result.scalars().all()
         logger.info(f"Found {len(all_permissions)} permissions to assign to admin role")
-        
+
         for perm in all_permissions:
             try:
                 await assign_permission_to_role(async_session, admin_role.id, perm.id)
@@ -95,9 +88,10 @@ async def init_data():
 
         # Create admin user if it doesn't exist
         try:
-            admin_exists = await get_user_by_username(async_session, "admin") or \
-                          await get_user_by_email(async_session, "admin@example.com")
-            
+            admin_exists = await get_user_by_username(
+                async_session, "admin"
+            ) or await get_user_by_email(async_session, "admin@example.com")
+
             if admin_exists:
                 logger.debug("Admin user already exists")
             else:
@@ -112,7 +106,7 @@ async def init_data():
         except Exception as exc:
             logger.error(f"Error inserting admin user: {exc}")
             raise exc
-            
+
         # Commit the transaction
         await async_session.commit()
     except Exception as e:

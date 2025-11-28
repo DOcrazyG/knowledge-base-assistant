@@ -1,12 +1,13 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
 
 from ..dependencies.depends import get_db
 from ..dependencies.security import get_current_active_user, require_permission
-from ..services.crud import permission as permission_crud
 from ..schemas.permission import Permission, PermissionCreate, PermissionUpdate
 from ..schemas.user import User
+from ..services.crud import permission as permission_crud
 
 router = APIRouter(prefix="/permissions", tags=["permissions"])
 

@@ -1,6 +1,6 @@
 from typing import List
 
-from chonkie import TableChunker, RecursiveChunker, RecursiveRules
+from chonkie import RecursiveChunker, RecursiveRules, TableChunker
 
 
 class DocumentChunker:

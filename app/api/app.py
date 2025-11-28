@@ -1,15 +1,15 @@
-from fastapi import FastAPI
-from fastapi import APIRouter
 from contextlib import asynccontextmanager
 
-from .login import router as login_router
-from .user import router as user_router
-from .role import router as role_router
-from .permission import router as permission_router
-from .file import router as file_router
-from .chat import router as chat_router
-from ..core.init_db import init_all
+from fastapi import FastAPI
+
 from ..core.database import engine
+from ..core.init_db import init_all
+from .chat import router as chat_router
+from .file import router as file_router
+from .login import router as login_router
+from .permission import router as permission_router
+from .role import router as role_router
+from .user import router as user_router
 
 
 @asynccontextmanager

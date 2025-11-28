@@ -1,10 +1,10 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
 from fastapi import HTTPException, status
 from loguru import logger
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...schemas import user as user_schemas
 from ...models import user as user_models
+from ...schemas import user as user_schemas
 from ...utils.security import get_password_hash
 
 

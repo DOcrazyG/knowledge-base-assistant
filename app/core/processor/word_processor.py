@@ -1,11 +1,12 @@
-import mammoth
 import os
 from io import BytesIO
 from typing import BinaryIO
+
+import mammoth
 from markdownify import markdownify as md
 
-from .base import BaseProcessor
 from ...utils.save2minio import upload_file
+from .base import BaseProcessor
 
 
 @mammoth.images.img_element

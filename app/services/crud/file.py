@@ -1,10 +1,10 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 from fastapi import HTTPException, status
 from loguru import logger
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...schemas import file as file_schemas
 from ...models import file as file_models
+from ...schemas import file as file_schemas
 
 
 async def create_file(db: AsyncSession, create_data: file_schemas.FileCreate):
@@ -31,7 +31,7 @@ async def create_file(db: AsyncSession, create_data: file_schemas.FileCreate):
             ),
         )
         return db_file
-    
+
     db_file = file_models.File(
         user_id=create_data.user_id,
         minio_path=create_data.minio_path,

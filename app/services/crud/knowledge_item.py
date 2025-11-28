@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import insert
 
 from ...models.knowledge_item import KnowledgeItem
 from ...schemas.knowledge_item import ItemCreate

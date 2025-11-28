@@ -157,6 +157,7 @@ async def _store_chunks_to_qdrant(
 
         # 存储到Qdrant，使用UUID格式的point ID
         import uuid
+
         point_id = str(uuid.uuid4())
         qdrant_client.upsert(
             collection_name=QDRANT_COLLECTION_NAME,

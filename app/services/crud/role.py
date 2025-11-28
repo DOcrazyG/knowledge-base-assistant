@@ -1,11 +1,11 @@
+from fastapi import HTTPException
+from loguru import logger
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from sqlalchemy import select, update
-from fastapi import HTTPException, status
-from loguru import logger
 
-from ...schemas import role as role_schemas
 from ...models import role as role_models
+from ...schemas import role as role_schemas
 
 
 async def create_role(db: AsyncSession, role: role_schemas.RoleCreate):

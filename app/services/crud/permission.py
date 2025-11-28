@@ -1,12 +1,12 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 from fastapi import HTTPException, status
 from loguru import logger
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...schemas import permission as permission_schemas
 from ...models import permission as permission_models
 from ...models import role as role_models
 from ...models.permission import RolePermission
+from ...schemas import permission as permission_schemas
 
 
 async def create_permission(
@@ -137,7 +137,9 @@ async def assign_permission_to_role(db: AsyncSession, role_id: int, permission_i
         return {"message": "Permission assigned to role successfully"}
     except Exception as exc:
         await db.rollback()
-        logger.error(f"Error assigning permission {permission_id} to role {role_id}: {exc}")
+        logger.error(
+            f"Error assigning permission {permission_id} to role {role_id}: {exc}"
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Error assigning permission to role: {exc}",

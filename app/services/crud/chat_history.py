@@ -1,10 +1,9 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 from fastapi import HTTPException, status
 from loguru import logger
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...schemas import chat_history as chat_history_schemas
 from ...models import chat_history as chat_history_models
+from ...schemas import chat_history as chat_history_schemas
 
 
 async def save_to_chat_history(

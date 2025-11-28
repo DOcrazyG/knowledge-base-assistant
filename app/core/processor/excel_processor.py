@@ -1,10 +1,9 @@
-import pandas as pd
 import os
-from io import BytesIO
 from typing import BinaryIO
 
+import pandas as pd
+
 from .base import BaseProcessor
-from ...utils.save2minio import upload_file
 
 
 class ExcelProcessor(BaseProcessor):

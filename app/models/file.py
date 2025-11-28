@@ -1,6 +1,7 @@
+from datetime import datetime, timedelta, timezone
+
+from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, ForeignKey, Integer, DateTime, func
-from datetime import datetime, timezone, timedelta
 
 from ..core.database import Base
 

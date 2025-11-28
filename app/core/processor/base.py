@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import BinaryIO
-from ..database import minio_client, MINIO_BUCKET_NAME
+
+from ..database import MINIO_BUCKET_NAME, minio_client
 
 
 class BaseProcessor(ABC):

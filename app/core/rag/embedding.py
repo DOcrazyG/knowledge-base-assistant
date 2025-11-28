@@ -1,8 +1,9 @@
 import os
+from typing import List
+
+from dotenv import load_dotenv
 from loguru import logger
 from openai import OpenAI
-from typing import List
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -18,7 +19,7 @@ class EmbeddingModel:
 
     def __init__(self):
         if self._client is None:
-            logger.info(f"Loading embedding client")
+            logger.info("Loading embedding client")
             self._client = OpenAI(
                 api_key=EMBEDDING_API_KEY,
                 base_url=EMBEDDING_BASE_URL,

@@ -1,8 +1,9 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 from ..core.database import Base
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, DateTime, Integer, Boolean, ForeignKey
 
 
 class User(Base):

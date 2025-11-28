@@ -14,9 +14,9 @@ router = APIRouter(prefix="/roles", tags=["roles"])
 @router.post("/", response_model=Role)
 @require_permission("role:manage")
 async def create_role(
-    role: RoleCreate, 
+    role: RoleCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
 ):
     return await role_crud.create_role(db=db, role=role)
 
@@ -38,10 +38,10 @@ async def read_role(role_id: int, db: AsyncSession = Depends(get_db)):
 @router.put("/{role_id}", response_model=Role)
 @require_permission("role:manage")
 async def update_role(
-    role_id: int, 
-    role: RoleUpdate, 
+    role_id: int,
+    role: RoleUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
 ):
     db_role = await role_crud.get_role(db, role_id=role_id)
     if db_role is None:
@@ -52,9 +52,9 @@ async def update_role(
 @router.delete("/{role_id}")
 @require_permission("role:manage")
 async def delete_role(
-    role_id: int, 
+    role_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
 ):
     db_role = await role_crud.get_role(db, role_id=role_id)
     if db_role is None:

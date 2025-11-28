@@ -1,7 +1,14 @@
-from ..core.database import minio_client, MINIO_BUCKET_NAME, MINIO_ENDPOINT, MINIO_SECURE
-from typing import BinaryIO
-from loguru import logger
 import json
+from typing import BinaryIO
+
+from loguru import logger
+
+from ..core.database import (
+    MINIO_BUCKET_NAME,
+    MINIO_ENDPOINT,
+    MINIO_SECURE,
+    minio_client,
+)
 
 
 def set_bucket_policy():
@@ -13,11 +20,11 @@ def set_bucket_policy():
                 "Effect": "Allow",
                 "Principal": {"AWS": "*"},
                 "Action": "s3:GetObject",
-                "Resource": f"arn:aws:s3:::{MINIO_BUCKET_NAME}/*"
+                "Resource": f"arn:aws:s3:::{MINIO_BUCKET_NAME}/*",
             }
-        ]
+        ],
     }
-    
+
     try:
         minio_client.set_bucket_policy(MINIO_BUCKET_NAME, json.dumps(policy))
         logger.info(f"Bucket policy set for {MINIO_BUCKET_NAME}")

@@ -1,14 +1,17 @@
+from datetime import timedelta
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from typing import Annotated
-from pydantic import BaseModel
-from datetime import timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..core.database import SessionLocal
-from ..dependencies.security import authenticate_user, create_access_token
-from ..dependencies.security import Token, ACCESS_TOKEN_EXPIRE_MINUTES
 from ..dependencies.depends import get_db
+from ..dependencies.security import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    Token,
+    authenticate_user,
+    create_access_token,
+)
 
 router = APIRouter(prefix="/login", tags=["login"])
 

@@ -1,9 +1,9 @@
 import os
-from dotenv import load_dotenv
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import DeclarativeBase, sessionmaker
-from minio import Minio
 
+from dotenv import load_dotenv
+from minio import Minio
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 load_dotenv()
 DB_HOST = os.getenv("DB_HOST")

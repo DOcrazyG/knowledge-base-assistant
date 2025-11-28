@@ -1,10 +1,9 @@
 import os
-from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams, PointStruct
-from qdrant_client.http.models import CollectionStatus
-from loguru import logger
 
 from dotenv import load_dotenv
+from loguru import logger
+from qdrant_client import QdrantClient
+from qdrant_client.models import Distance, VectorParams
 
 load_dotenv()
 
@@ -38,7 +37,7 @@ class QdrantClientManager:
                 collection_name=QDRANT_COLLECTION_NAME
             )
             logger.info(f"Collection {QDRANT_COLLECTION_NAME} already exists")
-        except Exception as e:
+        except Exception:
             # 集合不存在，创建新集合
             logger.info(f"Creating collection {QDRANT_COLLECTION_NAME}")
             self._client.create_collection(

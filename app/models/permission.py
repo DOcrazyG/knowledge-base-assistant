@@ -1,8 +1,9 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
+
+from sqlalchemy import DateTime, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..core.database import Base
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, DateTime, Integer, ForeignKey
 
 
 class Permission(Base):
@@ -17,7 +18,10 @@ class Permission(Base):
     )
 
     roles = relationship(
-        "Role", secondary="role_permission", back_populates="permissions", lazy="selectin"
+        "Role",
+        secondary="role_permission",
+        back_populates="permissions",
+        lazy="selectin",
     )
 
 
