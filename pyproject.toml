@@ -9,6 +9,7 @@ dependencies = [
     "bcrypt==4.0.1",
     "chonkie[hub]>=1.4.2",
     "fastapi>=0.122.0",
+    "httpx==0.25.2",
     "loguru>=0.7.3",
     "mammoth>=1.11.0",
     "markdownify>=1.2.2",
@@ -17,6 +18,8 @@ dependencies = [
     "passlib>=1.7.4",
     "pydantic>=2.12.5",
     "pyjwt>=2.10.1",
+    "pytest>=9.0.1",
+    "pytest-asyncio>=1.3.0",
     "python-dotenv>=1.2.1",
     "python-multipart>=0.0.20",
     "qdrant-client>=1.16.1",
@@ -24,5 +27,8 @@ dependencies = [
     "ruff>=0.14.6",
     "sqlalchemy>=2.0.44",
     "tabulate>=0.9.0",
+    "trio>=0.32.0",
     "uvicorn>=0.38.0",
 ]
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
