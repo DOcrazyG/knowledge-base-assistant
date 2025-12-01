@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class FileBase(BaseModel):
@@ -29,6 +29,5 @@ class FileInfo(BaseModel):
     minio_path: str
     size: int
     uploaded_at: datetime
-
-    class Config:
-        from_attributes = True
+    
+    model_config = ConfigDict(from_attributes=True)
